@@ -1,130 +1,3 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ASCII Art to JPG Converter</title>
-<style>
-    body {
-        background-color: #000;
-        color: white;
-        font-family: monospace;
-    }
-    #ascii-art {
-        white-space: pre;
-    }
-</style>
-</head>
-<body>
-<input type="file" id="file-input" accept="image/jpeg, image/png, image/gif, image/bmp">
-<div>
-    <label for="scale">Scale:</label>
-    <input type="range" id="scale" min="1" max="10" value="4">
-</div>
-<div id="ascii-art"></div>
-<button id="download-btn">Download ASCII Art as JPG</button>
-
-<script>
-function getStrAscii(intent) {
-    const ascii = [' ', '.', ':', '-', '=', '+', '*', '#', '%', '@'];
-    return ascii[Math.floor(intent / (256 / ascii.length))];
-}
-
-function getImage(file, scale) {
-    const img = new Image();
-    img.onload = function() {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const outputWidth = Math.floor(img.width * scale / 10);
-        const outputHeight = Math.floor(img.height * scale / 20);
-
-        canvas.width = outputWidth;
-        canvas.height = outputHeight;
-
-        ctx.drawImage(img, 0, 0, outputWidth, outputHeight);
-
-        const imageData = ctx.getImageData(0, 0, outputWidth, outputHeight);
-        const asciiArt = convertPixelsToASCII(imageData.data, outputWidth);
-        document.getElementById('ascii-art').textContent = asciiArt;
-
-        // Enable download button
-        document.getElementById('download-btn').disabled = false;
-        document.getElementById('download-btn').addEventListener('click', function() {
-            downloadASCIIArtAsJPG(asciiArt);
-        });
-    };
-    img.src = URL.createObjectURL(file);
-}
-
-function convertPixelsToASCII(pixels, width) {
-    let asciiArt = '';
-    for (let i = 0; i < pixels.length; i += 4) {
-        const intensity = (pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3;
-        asciiArt += getStrAscii(intensity);
-        if ((i / 4 + 1) % width === 0) asciiArt += '\n';
-    }
-    return asciiArt;
-}
-
-function downloadASCIIArtAsJPG(asciiArt) {
-    // Create a temporary canvas
-    const tempCanvas = document.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d');
-
-    // Set canvas size to fit ASCII art
-    const lines = asciiArt.split('\n');
-    const lineHeight = 14; // Adjust this value according to font size and line height
-    const maxLineWidth = lines.reduce((max, line) => Math.max(max, line.length), 0); // Get the longest line width
-    tempCanvas.width = maxLineWidth * 8; // Adjust width based on character width
-    tempCanvas.height = lines.length * lineHeight; // Adjust height based on line count
-
-    // Render ASCII art onto the canvas
-    tempCtx.fillStyle = '#000'; // Set background color
-    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height); // Fill background
-    tempCtx.font = '12px monospace'; // Set font size and family
-    tempCtx.fillStyle = '#fff'; // Set text color
-    lines.forEach((line, index) => {
-        const textWidth = tempCtx.measureText(line).width;
-        tempCtx.fillText(line, (tempCanvas.width - textWidth) / 2, (index + 1) * lineHeight);
-    });
-
-    // Convert canvas to data URL representing a JPG image
-    const dataURL = tempCanvas.toDataURL('image/jpeg', 1.0); // Preserve original quality
-
-    // Trigger download of the JPG image
-    const a = document.createElement('a');
-    a.href = dataURL;
-    a.download = 'ascii_art.jpg';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-}
-
-document.getElementById('file-input').addEventListener('change', function(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const scale = document.getElementById('scale').value;
-    getImage(file, scale);
-});
-
-document.getElementById('scale').addEventListener('input', function() {
-    const fileInput = document.getElementById('file-input');
-    const file = fileInput.files[0];
-    if (!file) return;
-
-    const scale = this.value;
-    getImage(file, scale);
-});
-</script>
-</body>
-</html> -->
-
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -151,7 +24,7 @@ document.getElementById('scale').addEventListener('input', function() {
         margin-bottom: 10px;
     }
     #download-btn {
-        background-color: #4CAF50; /* Green */
+        background-color: #4CAF50;
         border: none;
         color: white;
         padding: 15px 32px;
@@ -176,14 +49,13 @@ document.getElementById('scale').addEventListener('input', function() {
 <script>
 function getStrAscii(intensity) {
     const ascii = [' ', '.', ':', '-', '=', '+', '*', '#', '%', '@'];
-    // Adjust thresholds to better represent darker colors
     const thresholds = [32, 64, 96, 128, 160, 192, 224, 256];
     for (let i = 0; i < thresholds.length; i++) {
         if (intensity < thresholds[i]) {
             return ascii[i];
         }
     }
-    return '@'; // Fallback for very high intensity
+    return '@';
 }
 
 function getImage(file, scale) {
@@ -217,12 +89,10 @@ function getImage(file, scale) {
 function convertPixelsToASCII(pixels, width) {
     let asciiArt = '';
     for (let i = 0; i < pixels.length; i += 4) {
-        // Separate color channels
         const red = pixels[i];
         const green = pixels[i + 1];
         const blue = pixels[i + 2];
         
-        // Calculate intensity using a weighted average
         const intensity = 0.299 * red + 0.587 * green + 0.114 * blue;
 
         asciiArt += getStrAscii(intensity);
@@ -233,32 +103,27 @@ function convertPixelsToASCII(pixels, width) {
 
 
 function downloadASCIIArtAsJPG(asciiArt) {
-    // Create a temporary canvas
     const tempCanvas = document.createElement('canvas');
     const tempCtx = tempCanvas.getContext('2d');
 
-    // Set canvas size to fit ASCII art
     const lines = asciiArt.split('\n');
-    const lineHeight = 14; // Adjust this value according to font size and line height
-    const maxLineWidth = lines.reduce((max, line) => Math.max(max, line.length), 0); // Get the longest line width
-    tempCanvas.width = maxLineWidth * 8; // Adjust width based on character width
-    tempCanvas.height = lines.length * lineHeight; // Adjust height based on line count
+    const lineHeight = 14;
+    const maxLineWidth = lines.reduce((max, line) => Math.max(max, line.length), 0);
+    tempCanvas.width = maxLineWidth * 8;
+    tempCanvas.height = lines.length * lineHeight;
 
-    // Render ASCII art onto the canvas
-    tempCtx.fillStyle = '#000'; // Set background color
-    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height); // Fill background
-    tempCtx.font = '12px monospace'; // Set font size and family
-    tempCtx.fillStyle = '#fff'; // Set text color
+    tempCtx.fillStyle = '#000';
+    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+    tempCtx.font = '12px monospace';
+    tempCtx.fillStyle = '#fff';
     lines.forEach((line, index) => {
         const textWidth = tempCtx.measureText(line).width;
-        const xPos = (tempCanvas.width - textWidth) / 2; // Calculate x position to center the text
-        tempCtx.fillText(line, xPos, (index + 1) * lineHeight); // Render text
+        const xPos = (tempCanvas.width - textWidth) / 2;
+        tempCtx.fillText(line, xPos, (index + 1) * lineHeight);
     });
 
-    // Convert canvas to data URL representing a JPG image
-    const dataURL = tempCanvas.toDataURL('image/jpeg', 1.0); // Preserve original quality
+    const dataURL = tempCanvas.toDataURL('image/jpeg', 1.0);
 
-    // Trigger download of the JPG image
     const a = document.createElement('a');
     a.href = dataURL;
     a.download = 'ascii_art.jpg';
